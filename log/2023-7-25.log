@@ -1,0 +1,20 @@
+2023-07-25T10:40:06.602+0800	INFO	log/log.go:60	Server start
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+2023-07-25T10:40:06.603+0800	INFO	log/log.go:60	Server is running on port 10001
+[GIN-debug] POST   /auth/verify_phone        --> github.com/serenefiregroup/ffa_server/internal/handler.VerifyPhone (6 handlers)
+[GIN-debug] POST   /auth/sign_up             --> github.com/serenefiregroup/ffa_server/internal/handler.SignUp (6 handlers)
+[GIN-debug] POST   /auth/sign_in             --> github.com/serenefiregroup/ffa_server/internal/handler.SignIn (5 handlers)
+[GIN-debug] GET    /auth/me                  --> github.com/serenefiregroup/ffa_server/internal/handler.Me (5 handlers)
+[GIN-debug] POST   /auth/sign_out            --> github.com/serenefiregroup/ffa_server/internal/handler.SignOut (5 handlers)
+[GIN-debug] POST   /family/:familyUUID/set_fire_gold --> github.com/serenefiregroup/ffa_server/internal/handler.SetFIREGold (7 handlers)
+[GIN-debug] GET    /earning/categories       --> github.com/serenefiregroup/ffa_server/internal/handler.ListEarningCategory (6 handlers)
+[GIN-debug] POST   /earning/add              --> github.com/serenefiregroup/ffa_server/internal/handler.AddEarning (6 handlers)
+[GIN-debug] GET    /earning/list             --> github.com/serenefiregroup/ffa_server/internal/handler.ListEarning (6 handlers)
+[GIN-debug] GET    /family/:familyUUID/four_money/categories --> github.com/serenefiregroup/ffa_server/internal/handler.ListFourMoneyCategory (6 handlers)
+[GIN-debug] POST   /family/:familyUUID/four_money/add --> github.com/serenefiregroup/ffa_server/internal/handler.AddFourMoney (6 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :10001

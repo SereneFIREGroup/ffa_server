@@ -1,0 +1,22 @@
+debug: true
+port: 10001
+log_file:
+
+# db
+db_driver: mysql
+db_spec: bang:bang@tcp(localhost:3306)/ffa?parseTime=true&loc=Asia%2FShanghai&charset=utf8mb4
+db_max_idle: 100
+db_max_open: 1024
+db_conn_max_life_time: 1800
+db_show_log: false
+
+# openai
+openai_key: ""
+
+# pprof
+pyroscope:
+jeager:
+
+# sms
+aliyun_sms_access_key: ""
+aliyun_sms_secret: ""
