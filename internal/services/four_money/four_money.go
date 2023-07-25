@@ -14,7 +14,7 @@ import (
 var hub map[string]FourMoney
 
 type FourMoney interface {
-	ListCategory(ctx context.Context) (*Categories, error)
+	ListCategory(ctx context.Context) ([]string, error)
 	Add(ctx context.Context, familyUlid, userUlid string, req *AddFourMoneyRequest) error
 	Update(ctx context.Context, familyUlid, userUlid string, req *UpdateFourMoneyRequest) error
 	List(ctx context.Context, familyUlid, userUlid string, req *ListFourMoneyRequest) (*ListFourMoneyResponse, error)
@@ -31,6 +31,14 @@ func init() {
 	hub[fourMoneyModel.TypePocketMoney] = new(PocketMoney)
 }
 
+func getFourMoneyService(t string) (FourMoney, error) {
+	s, ok := hub[t]
+	if !ok {
+		return nil, errors.InvalidParameterError(errors.FourMoney, errors.Type, errors.InvalidParameter)
+	}
+	return s, nil
+}
+
 type AddFourMoneyRequest struct {
 	Type     string `json:"type"`
 	Amount   int64  `json:"amount"`
@@ -38,26 +46,9 @@ type AddFourMoneyRequest struct {
 	Remark   string `json:"remark"`
 }
 
-func (req *AddFourMoneyRequest) Validate() error {
-	if !fourMoneyModel.IsValidType(req.Type) {
-		return errors.InvalidParameterError(errors.FourMoney, errors.Type, errors.InvalidParameter)
-	}
-	if req.Amount <= 0 {
-		return errors.InvalidParameterError(req.Type, errors.Amount, errors.InvalidFormat)
-	}
-	if !fourMoneyModel.IsValidPocketMoneyCategory(req.Category) {
-		return errors.InvalidParameterError(req.Type, errors.Category, errors.InvalidParameter)
-	}
-	return nil
-}
-
 func AddFourMoney(ctx context.Context, familyUlid, userUlid string, req *AddFourMoneyRequest) error {
 	span, _ := jaegerUtils.WithSpan(ctx, "AddFourMoney")
 	defer span.Finish()
-
-	if err := req.Validate(); err != nil {
-		return errors.Trace(err)
-	}
 
 	family, err := familyModel.GetFamily(ctx, db.DB, familyUlid)
 	if err != nil {
@@ -75,7 +66,10 @@ func AddFourMoney(ctx context.Context, familyUlid, userUlid string, req *AddFour
 		return errors.NotFoundError(errors.User)
 	}
 
-	//pm := fourMoneyModel.NewBasePocketMoney(familyUlid, userUlid, req.Amount, req.Category, req.Remark)
-	//return InsertPocketMoney(spanCtx, db, pm)
-	return nil
+	s, err := getFourMoneyService(req.Type)
+	if err != nil {
+		return errors.Trace(err)
+	}
+	err = s.Add(ctx, familyUlid, userUlid, req)
+	return errors.Trace(err)
 }

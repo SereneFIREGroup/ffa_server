@@ -2,10 +2,10 @@ package four_money
 
 import (
 	"context"
-	"time"
 
 	"github.com/oklog/ulid/v2"
 	"github.com/opentracing/opentracing-go"
+	"github.com/serenefiregroup/ffa_server/pkg/date"
 	dbPkg "github.com/serenefiregroup/ffa_server/pkg/db"
 	"github.com/serenefiregroup/ffa_server/pkg/errors"
 	"gorm.io/gorm"
@@ -31,7 +31,7 @@ func NewBasePocketMoney(familyUlid, userUlid string, amount int64, category, rem
 		Amount:     amount,
 		Category:   category,
 		Remark:     remark,
-		CreateTime: time.Now().Unix(),
+		CreateTime: date.TodayStart(), // set create time to today start
 	}
 }
 

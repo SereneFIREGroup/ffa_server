@@ -27,10 +27,11 @@ func LoadConfig() error {
 	err = viper.Unmarshal(&config)
 	if err != nil {
 		return errors.Trace(err)
-	} //将配置文件绑定到config上
+	}
 	return nil
 }
 
+// StringOrPanic get string value from config, panic if not found
 func StringOrPanic(key string) string {
 	v, err := StringOrError(key)
 	if err != nil {
@@ -39,6 +40,7 @@ func StringOrPanic(key string) string {
 	return v
 }
 
+// StringOrError get string value from config, return error if not found
 func StringOrError(key string) (value string, err error) {
 	value, found := getString(key, "")
 	if !found {
@@ -47,7 +49,7 @@ func StringOrError(key string) (value string, err error) {
 	return
 }
 
-// String 根据某个 key 获取配置值，值类型为：string
+// String get string value from config with default value
 func String(key string, defaultValue string) (value string) {
 	value, _ = getString(key, defaultValue)
 	return
@@ -64,7 +66,7 @@ func getString(key string, defaultValue string) (value string, found bool) {
 	return defaultValue, false
 }
 
-// Bool 根据某个 key 获取配置值，值类型为：bool
+// Bool get bool value from config with default value
 func Bool(key string, defaultValue bool) (value bool) {
 	value, _ = getBool(key, defaultValue)
 	return
@@ -92,7 +94,7 @@ func getBool(key string, defaultValue bool) (value bool, found bool) {
 	}
 }
 
-// Int 根据某个 key 获取配置值，值类型为：int
+// Int get int value from config with default value
 func Int(key string, defaultValue int) (value int) {
 	value, _ = getInt(key, defaultValue)
 	return
@@ -112,7 +114,7 @@ func getInt(key string, defaultValue int) (value int, found bool) {
 	}
 }
 
-// Int64 根据某个 key 获取配置值，值类型为：int64
+// Int64 get int64 value from config with default value
 func Int64(key string, defaultValue int64) (value int64, found bool) {
 	v, found := config[key]
 	if !found {
@@ -127,6 +129,7 @@ func Int64(key string, defaultValue int64) (value int64, found bool) {
 	}
 }
 
+// IntOrPanic get int value from config, panic if not found
 func IntOrPanic(key string) int {
 	v, err := IntOrError(key)
 	if err != nil {
@@ -135,6 +138,7 @@ func IntOrPanic(key string) int {
 	return v
 }
 
+// IntOrError get int value from config, return error if not found
 func IntOrError(key string) (value int, err error) {
 	value, found := getInt(key, 0)
 	if !found {

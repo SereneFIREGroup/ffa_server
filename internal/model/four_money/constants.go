@@ -9,15 +9,15 @@ const (
 	PocketMoneyCategoryOther    = "other"
 )
 
-var TypeMap = map[string]string{
-	TypePocketMoney: "零花钱",
+var TypeMap = map[string]struct{}{
+	TypePocketMoney: {},
 }
 
-var PocketMoneyCategoryMap = map[string]string{
-	PocketMoneyCategoryWechat:   "微信",
-	PocketMoneyCategoryYueBao:   "余额宝",
-	PocketMoneyCategoryBankCard: "银行卡",
-	PocketMoneyCategoryOther:    "其他",
+var PocketMoneyCategoryMap = map[string]struct{}{
+	PocketMoneyCategoryWechat:   {},
+	PocketMoneyCategoryYueBao:   {},
+	PocketMoneyCategoryBankCard: {},
+	PocketMoneyCategoryOther:    {},
 }
 
 // PocketMoneyCategoryList PocketMoneyCategoryList

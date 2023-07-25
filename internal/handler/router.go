@@ -33,7 +33,7 @@ func Run() {
 	auth.GET("/me", Me)
 	auth.POST("/sign_out", SignOut)
 
-	family := api.Group("/family/:familyUUID")
+	family := api.Group("/family/:familyULID")
 	family.Use(CheckLogin())
 	family.Use(CheckFamily())
 	family.POST("/set_fire_gold", SetFIREGold)
@@ -44,9 +44,9 @@ func Run() {
 	earning.POST("/add", AddEarning)
 	earning.GET("/list", ListEarning)
 
-	fourMoney := api.Group("/family/:familyUUID/four_money")
+	fourMoney := api.Group("/family/:familyULID/four_money")
 	fourMoney.Use(CheckLogin())
-	family.Use(CheckFamily())
+	fourMoney.Use(CheckFamily())
 	fourMoney.GET("/categories", ListFourMoneyCategory)
 	fourMoney.POST("/add", AddFourMoney)
 
