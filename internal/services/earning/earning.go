@@ -2,6 +2,7 @@ package earning
 
 import (
 	"context"
+	"math"
 
 	"github.com/opentracing/opentracing-go"
 	earningCareerModel "github.com/serenefiregroup/ffa_server/internal/model/earning_career"
@@ -44,7 +45,7 @@ func (req *AddEarningRequest) Valid() error {
 	return nil
 }
 
-func AddEarning(ctx context.Context, userULID string, req *AddEarningRequest) error {
+func AddEarning(ctx context.Context, userID string, req *AddEarningRequest) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "AddEarning")
 	defer span.Finish()
 
@@ -52,14 +53,14 @@ func AddEarning(ctx context.Context, userULID string, req *AddEarningRequest) er
 		return errors.Trace(err)
 	}
 
-	user, err := userModel.GetUserByULID(ctx, db.DB, userULID)
+	user, err := userModel.GetUserByID(ctx, db.DB, userID)
 	if err != nil {
 		return errors.Trace(err)
 	}
 	if user == nil {
 		return errors.NotFoundError(errors.User)
 	}
-	earning := earningCareerModel.NewBaseEarning(userULID, req.Amount, req.Category, req.Desc)
+	earning := earningCareerModel.NewBaseEarning(userID, req.Amount, req.Category, req.Desc)
 	err = earningCareerModel.InsertEarningCareer(ctx, db.DB, earning)
 	if err != nil {
 		return errors.Trace(err)
@@ -90,7 +91,7 @@ type ListEarningResp struct {
 	Earnings []*EarningPayload `json:"earnings"`
 }
 
-func ListEarning(ctx context.Context, userULID string, req *ListEarningRequest) (*ListEarningResp, error) {
+func ListEarning(ctx context.Context, userID string, req *ListEarningRequest) (*ListEarningResp, error) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "ListEarning")
 	defer span.Finish()
 
@@ -98,7 +99,7 @@ func ListEarning(ctx context.Context, userULID string, req *ListEarningRequest) 
 		return nil, errors.Trace(err)
 	}
 
-	user, err := userModel.GetUserByULID(ctx, db.DB, userULID)
+	user, err := userModel.GetUserByID(ctx, db.DB, userID)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -108,7 +109,7 @@ func ListEarning(ctx context.Context, userULID string, req *ListEarningRequest) 
 
 	startDateStamp := datePkg.DateStart(req.StartDate)
 	endDateStamp := datePkg.DateEnd(req.EndDate)
-	earnings, err := earningCareerModel.ListEarningCareer(ctx, db.DB, userULID, startDateStamp, endDateStamp)
+	earnings, err := earningCareerModel.ListEarningCareer(ctx, db.DB, userID, startDateStamp, endDateStamp)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -118,6 +119,45 @@ func ListEarning(ctx context.Context, userULID string, req *ListEarningRequest) 
 	for i, earning := range earnings {
 		total += int(earning.Amount)
 		resp.Earnings[i] = Model2Payload(earning)
+	}
+	return resp, nil
+}
+
+type AggrEarningResp struct {
+	Total        int64                   `json:"total"`
+	YearEarnings []*YearlyEarningPayload `json:"year_earnings"`
+}
+
+func AggregationEarning(ctx context.Context, userID string) (*AggrEarningResp, error) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "ListEarning")
+	defer span.Finish()
+
+	user, err := userModel.GetUserByID(ctx, db.DB, userID)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	if user == nil {
+		return nil, errors.NotFoundError(errors.User)
+	}
+
+	earnings, err := earningCareerModel.ListEarningCareer(ctx, db.DB, userID, earningCareerModel.UnLimitTime, earningCareerModel.UnLimitTime)
+	if err != nil {
+		return nil, errors.Trace(err)
+	}
+	total := 0
+	resp := new(AggrEarningResp)
+	resp.YearEarnings = make([]*YearlyEarningPayload, 0, len(earnings))
+	preYear := math.MinInt
+	for _, earning := range earnings {
+		total += int(earning.Amount)
+		year := earning.GetYear()
+		if year != preYear {
+			resp.YearEarnings = append(resp.YearEarnings, &YearlyEarningPayload{
+				Year:   year,
+				Amount: 0,
+			})
+		}
+		resp.YearEarnings[len(resp.YearEarnings)-1].Amount += earning.Amount
 	}
 	return resp, nil
 }

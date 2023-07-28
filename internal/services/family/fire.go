@@ -21,7 +21,7 @@ func (req *SetFIREGoldRequest) Validate() error {
 	return nil
 }
 
-func SetFIREGold(ctx context.Context, familyULID, userULID string, req *SetFIREGoldRequest) error {
+func SetFIREGold(ctx context.Context, familyID, userID string, req *SetFIREGoldRequest) error {
 	span, _ := jaegerUtils.WithSpan(ctx, "SetFIREGold")
 	defer span.Finish()
 
@@ -29,7 +29,7 @@ func SetFIREGold(ctx context.Context, familyULID, userULID string, req *SetFIREG
 		return errors.Trace(err)
 	}
 
-	family, err := familyModel.GetFamily(ctx, db.DB, familyULID)
+	family, err := familyModel.GetFamily(ctx, db.DB, familyID)
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -37,17 +37,17 @@ func SetFIREGold(ctx context.Context, familyULID, userULID string, req *SetFIREG
 		return errors.NotFoundError(errors.Family)
 	}
 
-	user, err := userModel.GetUserByULID(ctx, db.DB, userULID)
+	user, err := userModel.GetUserByID(ctx, db.DB, userID)
 	if err != nil {
 		return errors.Trace(err)
 	}
 	if user == nil {
 		return errors.NotFoundError(errors.User)
 	}
-	if family.Owner != userULID {
+	if family.Owner != userID {
 		return errors.AccessDeniedError(errors.Family, errors.InvalidOwner)
 	}
-	family.SetFIREGold(req.Amount)
+	family.SetFIREGoal(req.Amount)
 	err = familyModel.UpdateFamily(ctx, db.DB, family)
 	return errors.Trace(err)
 }

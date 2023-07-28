@@ -15,9 +15,9 @@ var hub map[string]FourMoney
 
 type FourMoney interface {
 	ListCategory(ctx context.Context) ([]string, error)
-	Add(ctx context.Context, familyUlid, userUlid string, req *AddFourMoneyRequest) error
-	Update(ctx context.Context, familyUlid, userUlid string, req *UpdateFourMoneyRequest) error
-	List(ctx context.Context, familyUlid, userUlid string, req *ListFourMoneyRequest) (*ListFourMoneyResponse, error)
+	Add(ctx context.Context, familyID, userID string, req *AddFourMoneyRequest) error
+	Update(ctx context.Context, familyID, userID string, req *UpdateFourMoneyRequest) error
+	List(ctx context.Context, familyID, userID string, req *ListFourMoneyRequest) (*ListFourMoneyResponse, error)
 }
 
 type UpdateFourMoneyRequest struct{}
@@ -46,11 +46,11 @@ type AddFourMoneyRequest struct {
 	Remark   string `json:"remark"`
 }
 
-func AddFourMoney(ctx context.Context, familyUlid, userUlid string, req *AddFourMoneyRequest) error {
+func AddFourMoney(ctx context.Context, familyID, userID string, req *AddFourMoneyRequest) error {
 	span, _ := jaegerUtils.WithSpan(ctx, "AddFourMoney")
 	defer span.Finish()
 
-	family, err := familyModel.GetFamily(ctx, db.DB, familyUlid)
+	family, err := familyModel.GetFamily(ctx, db.DB, familyID)
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -58,7 +58,7 @@ func AddFourMoney(ctx context.Context, familyUlid, userUlid string, req *AddFour
 		return errors.NotFoundError(errors.Family)
 	}
 
-	user, err := userModel.GetUserByULID(ctx, db.DB, userUlid)
+	user, err := userModel.GetUserByID(ctx, db.DB, userID)
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -70,6 +70,6 @@ func AddFourMoney(ctx context.Context, familyUlid, userUlid string, req *AddFour
 	if err != nil {
 		return errors.Trace(err)
 	}
-	err = s.Add(ctx, familyUlid, userUlid, req)
+	err = s.Add(ctx, familyID, userID, req)
 	return errors.Trace(err)
 }

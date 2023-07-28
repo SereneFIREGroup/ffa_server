@@ -8,7 +8,7 @@ import (
 func SetFIREGold(c *gin.Context) {
 	spanCtx := getCtx(c)
 
-	familyUUID := getFamilyULID(c)
+	familyUUID := getFamilyID(c)
 	userUUID := GetRequestUserID(c)
 	var req family.SetFIREGoldRequest
 	if err := BindJSON(c, &req); err != nil {

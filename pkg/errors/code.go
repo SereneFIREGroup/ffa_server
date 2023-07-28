@@ -231,6 +231,7 @@ const (
 	EndDate    = "EndDate"
 	Email      = "Email"
 	FIREGold   = "FIREGold"
+	ID         = "ID"
 	Owner      = "Owner"
 	Password   = "Password"
 	Phone      = "Phone"

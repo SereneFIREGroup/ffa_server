@@ -21,27 +21,27 @@ const (
 )
 
 type Family struct {
-	ULID       string `json:"ulid" gorm:"primarykey,column:ulid"`
+	ID         string `json:"ulid" gorm:"primarykey,column:id"`
 	Owner      string `json:"owner" gorm:"column:owner"`
 	Name       string `json:"name" gorm:"column:name"`
 	Status     int    `json:"status" gorm:"column:status"`
 	CreateTime int64  `json:"create_time" gorm:"column:create_time"`
-	FIREGold   int64  `json:"fire_gold" gorm:"column:fire_gold"`
+	FIREGoal   int64  `json:"fire_gold" gorm:"column:fire_goal"`
 }
 
 func NewBaseFamily(ulid, owner, name string) *Family {
 	return &Family{
-		ULID:       ulid,
+		ID:         ulid,
 		Owner:      owner,
 		Name:       name,
 		Status:     StatusNormal,
 		CreateTime: time.Now().Unix(),
-		FIREGold:   0,
+		FIREGoal:   0,
 	}
 }
 
-func (f *Family) SetFIREGold(amount int64) {
-	f.FIREGold = amount
+func (f *Family) SetFIREGoal(amount int64) {
+	f.FIREGoal = amount
 }
 
 // InsertFamily insert family to DB
@@ -68,7 +68,7 @@ func GetFamily(ctx context.Context, db *gorm.DB, ulid string) (*Family, error) {
 	defer span.Finish()
 
 	f := new(Family)
-	err := db.Table(dbPkg.TableFamily).Where("ulid = ?", ulid).First(&f).Error
+	err := db.Table(dbPkg.TableFamily).Where("id = ?", ulid).First(&f).Error
 	if err != nil {
 		return nil, errors.Sql(err)
 	}

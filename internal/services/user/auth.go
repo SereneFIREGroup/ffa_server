@@ -37,20 +37,20 @@ func (req *SignUpRequest) validate() error {
 }
 
 type AuthPayload struct {
-	FamilyULID string `json:"family_ulid"`
-	ULID       string `json:"ulid"`
-	Name       string `json:"name"`
-	Avatar     string `json:"avatar"`
-	Token      string `json:"token"`
+	FamilyID string `json:"family_id"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Avatar   string `json:"avatar"`
+	Token    string `json:"token"`
 }
 
-func NewBaseAuthPayload(familyULID, userULID, name, avatar, token string) *AuthPayload {
+func NewBaseAuthPayload(familyID, userID, name, avatar, token string) *AuthPayload {
 	return &AuthPayload{
-		FamilyULID: familyULID,
-		ULID:       userULID,
-		Name:       name,
-		Avatar:     avatar,
-		Token:      token,
+		FamilyID: familyID,
+		ID:       userID,
+		Name:     name,
+		Avatar:   avatar,
+		Token:    token,
 	}
 }
 
@@ -78,10 +78,10 @@ func SignUp(ctx context.Context, req *SignUpRequest) (*AuthPayload, error) {
 	}
 
 	passwordMD5 := userModel.BuildPasswordMD5(req.Password)
-	familyULID, userULID := ulid.Make().String(), ulid.Make().String()
-	family := familyModel.NewBaseFamily(familyULID, userULID, req.Name)
-	user := userModel.NewBaseUser(familyULID, userULID, req.Name, req.Phone, passwordMD5)
-	session := userModel.NewBaseSession(userULID)
+	familyID, userID := ulid.Make().String(), ulid.Make().String()
+	family := familyModel.NewBaseFamily(familyID, userID, req.Name)
+	user := userModel.NewBaseUser(familyID, userID, req.Name, req.Phone, passwordMD5)
+	session := userModel.NewBaseSession(userID)
 
 	txErr := db.Transact(func(tx *gorm.DB) error {
 		err := familyModel.InsertFamily(ctx, tx, family)
@@ -98,7 +98,7 @@ func SignUp(ctx context.Context, req *SignUpRequest) (*AuthPayload, error) {
 	if txErr != nil {
 		return nil, errors.Trace(txErr)
 	}
-	resp := NewBaseAuthPayload(familyULID, userULID, user.Name, user.Avatar, session.Token)
+	resp := NewBaseAuthPayload(familyID, userID, user.Name, user.Avatar, session.Token)
 	return resp, nil
 }
 
@@ -134,21 +134,21 @@ func SignIn(ctx context.Context, req *SignInRequest) (*AuthPayload, error) {
 		return nil, errors.AuthFailureError(errors.IncorrectPassword)
 	}
 
-	session := userModel.NewBaseSession(user.ULID)
+	session := userModel.NewBaseSession(user.ID)
 	err = userModel.InsertSession(ctx, db.DB, session)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
-	resp := NewBaseAuthPayload(user.FamilyULID, user.ULID, user.Name, user.Avatar, session.Token)
+	resp := NewBaseAuthPayload(user.FamilyID, user.ID, user.Name, user.Avatar, session.Token)
 	return resp, nil
 }
 
-func SignOut(ctx context.Context, userULID string) error {
+func SignOut(ctx context.Context, userID string) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "SignOut")
 	defer span.Finish()
 
 	// found user
-	user, err := userModel.GetUserByULID(ctx, db.DB, userULID)
+	user, err := userModel.GetUserByID(ctx, db.DB, userID)
 	if err != nil {
 		return errors.Trace(err)
 	}
@@ -156,16 +156,16 @@ func SignOut(ctx context.Context, userULID string) error {
 		return errors.NotFoundError(errors.User)
 	}
 	// delete session
-	err = userModel.DeleteSession(ctx, db.DB, userULID)
+	err = userModel.DeleteSession(ctx, db.DB, userID)
 	return errors.Trace(err)
 }
 
-func Me(ctx context.Context, userULID, token string) (*AuthPayload, error) {
+func Me(ctx context.Context, userID, token string) (*AuthPayload, error) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "Me")
 	defer span.Finish()
 
 	// found user
-	user, err := userModel.GetUserByULID(ctx, db.DB, userULID)
+	user, err := userModel.GetUserByID(ctx, db.DB, userID)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -173,13 +173,13 @@ func Me(ctx context.Context, userULID, token string) (*AuthPayload, error) {
 		return nil, errors.NotFoundError(errors.User)
 	}
 	// found session
-	session, err := userModel.GetSession(ctx, db.DB, userULID, token)
+	session, err := userModel.GetSession(ctx, db.DB, userID, token)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
 	if session == nil {
 		return nil, errors.AuthFailureError(errors.InvalidToken)
 	}
-	resp := NewBaseAuthPayload(user.FamilyULID, user.ULID, user.Name, user.Avatar, session.Token)
+	resp := NewBaseAuthPayload(user.FamilyID, user.ID, user.Name, user.Avatar, session.Token)
 	return resp, nil
 }

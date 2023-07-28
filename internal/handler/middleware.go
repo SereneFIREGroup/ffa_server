@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	HeaderUserULID = "X-User-ULID"
-	HeaderToken    = "X-Token"
+	HeaderUserID = "X-User-ID"
+	HeaderToken  = "X-Token"
 )
 
 var PanicHandler = gin.HandlerFunc(func(ctx *gin.Context) {
@@ -74,17 +74,17 @@ func CheckLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := getCtx(c)
 
-		userULID := GetRequestUserID(c)
+		userID := GetRequestUserID(c)
 		token := GetRequestToken(c)
-		if len(userULID) != constants.ULIDLen {
-			RenderJSONAndStop(c, errors.InvalidParameterError(errors.User, errors.ULID, errors.InvalidParameter), nil)
+		if len(userID) != constants.ULIDLen {
+			RenderJSONAndStop(c, errors.InvalidParameterError(errors.User, errors.ID, errors.InvalidParameter), nil)
 			return
 		}
 		if len(token) != constants.TokenLen {
 			RenderJSONAndStop(c, errors.InvalidParameterError(errors.User, errors.Token, errors.InvalidParameter), nil)
 			return
 		}
-		s, err := userModel.GetSession(ctx, db.DB, userULID, token)
+		s, err := userModel.GetSession(ctx, db.DB, userID, token)
 		if err != nil {
 			RenderJSONAndStop(c, errors.Trace(err), nil)
 			return
@@ -101,17 +101,17 @@ func CheckFamily() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := getCtx(c)
 
-		familyULID := getFamilyULID(c)
-		userULID := GetRequestUserID(c)
-		if len(userULID) != constants.ULIDLen {
-			RenderJSONAndStop(c, errors.InvalidParameterError(errors.User, errors.ULID, errors.InvalidParameter), nil)
+		familyID := getFamilyID(c)
+		userID := GetRequestUserID(c)
+		if len(userID) != constants.ULIDLen {
+			RenderJSONAndStop(c, errors.InvalidParameterError(errors.User, errors.ID, errors.InvalidParameter), nil)
 			return
 		}
-		if len(familyULID) != constants.ULIDLen {
-			RenderJSONAndStop(c, errors.InvalidParameterError(errors.Family, errors.ULID, errors.InvalidParameter), nil)
+		if len(familyID) != constants.ULIDLen {
+			RenderJSONAndStop(c, errors.InvalidParameterError(errors.Family, errors.ID, errors.InvalidParameter), nil)
 			return
 		}
-		u, err := userModel.GetUserByFamilyAndULID(ctx, db.DB, familyULID, userULID)
+		u, err := userModel.GetUserByFamilyAndID(ctx, db.DB, familyID, userID)
 		if err != nil {
 			RenderJSONAndStop(c, errors.Trace(err), nil)
 			return
@@ -131,18 +131,18 @@ func getCtx(c *gin.Context) context.Context {
 	return spanCtx
 }
 
-func getFamilyULID(c *gin.Context) string {
-	familyULID := c.Param("familyULID")
-	return familyULID
+func getFamilyID(c *gin.Context) string {
+	familyID := c.Param("familyID")
+	return familyID
 }
 
-func getUserULID(c *gin.Context) string {
-	userULID := c.Param("userULID")
-	return userULID
+func getUserID(c *gin.Context) string {
+	userID := c.Param("userID")
+	return userID
 }
 
 func GetRequestUserID(c *gin.Context) string {
-	return ParseHeadOrCookie(c, HeaderUserULID)
+	return ParseHeadOrCookie(c, HeaderUserID)
 }
 
 func GetRequestToken(c *gin.Context) string {

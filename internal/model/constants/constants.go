@@ -4,5 +4,5 @@ const (
 	ProductName = "ffa"
 
 	ULIDLen  = 26
-	TokenLen = 32
+	TokenLen = 64
 )

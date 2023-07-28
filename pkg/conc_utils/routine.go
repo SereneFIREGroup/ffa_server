@@ -10,7 +10,9 @@ func GoSafe(fn func()) {
 	wg := conc.NewWaitGroup()
 	defer func() {
 		recoverPanic := wg.WaitAndRecover()
-		log.Error(recoverPanic.String())
+		if recoverPanic != nil {
+			log.Error(recoverPanic.String())
+		}
 	}()
 
 	wg.Go(fn)

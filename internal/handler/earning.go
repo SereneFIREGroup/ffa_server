@@ -15,23 +15,31 @@ func ListEarningCategory(c *gin.Context) {
 func AddEarning(c *gin.Context) {
 	spanCtx := getCtx(c)
 
-	userUUID := GetRequestUserID(c)
+	userID := GetRequestUserID(c)
 	var req earningServices.AddEarningRequest
 	if err := BindJSON(c, &req); err != nil {
 		return
 	}
-	result := earningServices.AddEarning(spanCtx, userUUID, &req)
+	result := earningServices.AddEarning(spanCtx, userID, &req)
 	RenderJSON(c, result, nil)
 }
 
 func ListEarning(c *gin.Context) {
 	spanCtx := getCtx(c)
 
-	userUUID := GetRequestUserID(c)
+	userID := GetRequestUserID(c)
 	var req earningServices.ListEarningRequest
 	if err := BindJSON(c, &req); err != nil {
 		return
 	}
-	obj, result := earningServices.ListEarning(spanCtx, userUUID, &req)
+	obj, result := earningServices.ListEarning(spanCtx, userID, &req)
+	RenderJSON(c, result, obj)
+}
+
+func Aggregation(c *gin.Context) {
+	spanCtx := getCtx(c)
+
+	userID := GetRequestUserID(c)
+	obj, result := earningServices.AggregationEarning(spanCtx, userID)
 	RenderJSON(c, result, obj)
 }

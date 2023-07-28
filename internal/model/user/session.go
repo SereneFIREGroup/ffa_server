@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/opentracing/opentracing-go"
+	"github.com/serenefiregroup/ffa_server/internal/model/constants"
 	dbPkg "github.com/serenefiregroup/ffa_server/pkg/db"
 	"github.com/serenefiregroup/ffa_server/pkg/errors"
 	"github.com/serenefiregroup/ffa_server/pkg/random"
@@ -11,19 +12,15 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const (
-	tokenLen = 64
-)
-
 type Session struct {
-	UserULID string `json:"user_ulid" gorm:"primarykey,column:user_ulid"`
-	Token    string `json:"token" gorm:"column:token"`
+	UserID string `json:"user_id" gorm:"primarykey,column:user_id"`
+	Token  string `json:"token" gorm:"column:token"`
 }
 
 func NewBaseSession(userULID string) *Session {
 	return &Session{
-		UserULID: userULID,
-		Token:    random.Alphanumeric(tokenLen),
+		UserID: userULID,
+		Token:  random.Alphanumeric(constants.TokenLen),
 	}
 }
 
@@ -33,7 +30,7 @@ func InsertSession(ctx context.Context, db *gorm.DB, s *Session) error {
 	defer span.Finish()
 
 	err := db.Table(dbPkg.TableSession).Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "user_ulid"}},
+		Columns:   []clause.Column{{Name: "user_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"token"}),
 	}).Create(&s).Error
 	if err != nil {
@@ -47,17 +44,17 @@ func DeleteSession(ctx context.Context, db *gorm.DB, userULID string) error {
 	span, _ := opentracing.StartSpanFromContext(ctx, "DeleteSession")
 	defer span.Finish()
 
-	err := db.Table(dbPkg.TableSession).Delete(&Session{}, "user_ulid = ?", userULID).Error
+	err := db.Table(dbPkg.TableSession).Delete(&Session{}, "user_id = ?", userULID).Error
 	return errors.Sql(err)
 }
 
 // GetSession get session from DB
-func GetSession(ctx context.Context, db *gorm.DB, userULID, token string) (*Session, error) {
+func GetSession(ctx context.Context, db *gorm.DB, userID, token string) (*Session, error) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "GetSession")
 	defer span.Finish()
 
 	s := new(Session)
-	err := db.Table(dbPkg.TableSession).Where("user_ulid = ? AND token = ?", userULID, token).First(&s).Error
+	err := db.Table(dbPkg.TableSession).Where("user_id = ? AND token = ?", userID, token).First(&s).Error
 	if err != nil {
 		return nil, errors.Sql(err)
 	}

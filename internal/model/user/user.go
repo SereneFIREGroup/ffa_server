@@ -23,8 +23,8 @@ const (
 )
 
 type User struct {
-	FamilyULID string `json:"family_ulid" gorm:"column:family_ulid"`
-	ULID       string `json:"ulid" gorm:"primarykey,column:ulid"`
+	FamilyID   string `json:"family_id" gorm:"column:family_id"`
+	ID         string `json:"id" gorm:"primarykey,column:id"`
 	Name       string `json:"name" gorm:"column:name"`
 	Avatar     string `json:"avatar" gorm:"column:avatar"`
 	Phone      string `json:"phone" gorm:"column:phone"`
@@ -33,10 +33,10 @@ type User struct {
 	CreateTime int64  `json:"create_time" gorm:"column:create_time"`
 }
 
-func NewBaseUser(familyULID, ulid, name, phone, password string) *User {
+func NewBaseUser(familyID, id, name, phone, password string) *User {
 	return &User{
-		FamilyULID: familyULID,
-		ULID:       ulid,
+		FamilyID:   familyID,
+		ID:         id,
 		Name:       name,
 		Avatar:     "",
 		Phone:      phone,
@@ -91,26 +91,26 @@ func GetUserByPhone(ctx context.Context, db *gorm.DB, phone string) (*User, erro
 	return &user, nil
 }
 
-// GetUserByULID get user by ulid
-func GetUserByULID(ctx context.Context, db *gorm.DB, ulid string) (*User, error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "GetUserByULID")
+// GetUserByID get user by ulid
+func GetUserByID(ctx context.Context, db *gorm.DB, id string) (*User, error) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "GetUserByID")
 	defer span.Finish()
 
 	var user User
-	err := db.Table(dbPkg.TableUser).Where("ulid=? and status=?", ulid, StatusNormal).First(&user).Error
+	err := db.Table(dbPkg.TableUser).Where("id=? and status=?", id, StatusNormal).First(&user).Error
 	if err != nil {
 		return nil, errors.Sql(err)
 	}
 	return &user, nil
 }
 
-// GetUserByFamilyAndULID get user by family ulid and ulid
-func GetUserByFamilyAndULID(ctx context.Context, db *gorm.DB, familyULID, userULID string) (*User, error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "GetUserByFamilyAndULID")
+// GetUserByFamilyAndID get user by family ulid and ulid
+func GetUserByFamilyAndID(ctx context.Context, db *gorm.DB, familyID, userID string) (*User, error) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "GetUserByFamilyAndID")
 	defer span.Finish()
 
 	var user *User
-	err := db.Table(dbPkg.TableUser).Where("family_ulid=? and ulid=? and status=?", familyULID, userULID, StatusNormal).First(&user).Error
+	err := db.Table(dbPkg.TableUser).Where("family_id=? and id=? and status=?", familyID, userID, StatusNormal).First(&user).Error
 	if err != nil {
 		return nil, errors.Sql(err)
 	}

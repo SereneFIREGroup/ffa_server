@@ -11,11 +11,16 @@ type EarningPayload struct {
 	Desc     string `json:"desc"`
 }
 
+type YearlyEarningPayload struct {
+	Year   int   `json:"year"`
+	Amount int64 `json:"amount"`
+}
+
 // Model2Payload converts model to payload
 func Model2Payload(earning *earningCareerModel.Earning) *EarningPayload {
 	return &EarningPayload{
 		Amount:   earning.Amount,
-		Date:     earning.CreatedAt.Unix(),
+		Date:     earning.CreateTime,
 		Category: earning.Category,
 		Desc:     earning.Desc,
 	}

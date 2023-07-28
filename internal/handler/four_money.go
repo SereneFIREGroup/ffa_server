@@ -15,12 +15,12 @@ func ListFourMoneyCategory(c *gin.Context) {
 func AddFourMoney(c *gin.Context) {
 	spanCtx := getCtx(c)
 
-	familyUUID := getFamilyULID(c)
-	userUUID := GetRequestUserID(c)
+	familyID := getFamilyID(c)
+	userID := GetRequestUserID(c)
 	var req fourMoneyServices.AddFourMoneyRequest
 	if err := BindJSON(c, &req); err != nil {
 		return
 	}
-	result := fourMoneyServices.AddFourMoney(spanCtx, familyUUID, userUUID, &req)
+	result := fourMoneyServices.AddFourMoney(spanCtx, familyID, userID, &req)
 	RenderJSON(c, result, nil)
 }
