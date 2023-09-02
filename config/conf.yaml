@@ -4,7 +4,7 @@ log_file:
 
 # db
 db_driver: mysql
-db_spec: bang:bang@tcp(localhost:3306)/ffa?parseTime=true&loc=Asia%2FShanghai&charset=utf8mb4
+db_spec: root:lft8306488@tcp(localhost:3306)/ffa?parseTime=true&loc=Asia%2FShanghai&charset=utf8mb4
 db_max_idle: 100
 db_max_open: 1024
 db_conn_max_life_time: 1800

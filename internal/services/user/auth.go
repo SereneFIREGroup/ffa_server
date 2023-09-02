@@ -61,7 +61,7 @@ func SignUp(ctx context.Context, req *SignUpRequest) (*AuthPayload, error) {
 	if err := req.validate(); err != nil {
 		return nil, errors.Trace(err)
 	}
-	existPhone, err := userModel.ExistPhone(db.DB, req.Phone)
+	existPhone, err := userModel.ExistPhone(ctx, db.DB, req.Phone)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
@@ -88,7 +88,7 @@ func SignUp(ctx context.Context, req *SignUpRequest) (*AuthPayload, error) {
 		if err != nil {
 			return errors.Trace(err)
 		}
-		err = userModel.InsertUser(tx, user)
+		err = userModel.InsertUser(ctx, tx, user)
 		if err != nil {
 			return errors.Trace(err)
 		}

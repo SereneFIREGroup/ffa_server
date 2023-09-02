@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	goErrors "errors"
 	"time"
 
 	"github.com/opentracing/opentracing-go"
@@ -61,7 +62,10 @@ func BuildPasswordMD5(password string) string {
 }
 
 // ExistPhone check phone exist
-func ExistPhone(db *gorm.DB, code string) (bool, error) {
+func ExistPhone(ctx context.Context, db *gorm.DB, code string) (bool, error) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "ExistPhone")
+	defer span.Finish()
+
 	var count int64
 	if err := db.Table(dbPkg.TableUser).Where("phone=?", code).Count(&count).Error; err != nil {
 		return false, errors.Sql(err)
@@ -73,18 +77,24 @@ func ExistPhone(db *gorm.DB, code string) (bool, error) {
 }
 
 // InsertUser insert user to DB
-func InsertUser(db *gorm.DB, user *User) error {
+func InsertUser(ctx context.Context, db *gorm.DB, user *User) error {
+	span, _ := opentracing.StartSpanFromContext(ctx, "InsertUser")
+	defer span.Finish()
+
 	err := db.Table(dbPkg.TableUser).Create(&user).Error
 	return errors.Sql(err)
 }
 
 // GetUserByPhone get user by phone
 func GetUserByPhone(ctx context.Context, db *gorm.DB, phone string) (*User, error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "SignOut")
+	span, _ := opentracing.StartSpanFromContext(ctx, "GetUserByPhone")
 	defer span.Finish()
 
 	var user User
 	err := db.Table(dbPkg.TableUser).Where("phone=? and status=?", phone, StatusNormal).First(&user).Error
+	if goErrors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, errors.Sql(err)
 	}
@@ -98,6 +108,9 @@ func GetUserByID(ctx context.Context, db *gorm.DB, id string) (*User, error) {
 
 	var user User
 	err := db.Table(dbPkg.TableUser).Where("id=? and status=?", id, StatusNormal).First(&user).Error
+	if goErrors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, errors.Sql(err)
 	}
@@ -111,6 +124,9 @@ func GetUserByFamilyAndID(ctx context.Context, db *gorm.DB, familyID, userID str
 
 	var user *User
 	err := db.Table(dbPkg.TableUser).Where("family_id=? and id=? and status=?", familyID, userID, StatusNormal).First(&user).Error
+	if goErrors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, errors.Sql(err)
 	}

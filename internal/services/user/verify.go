@@ -35,7 +35,7 @@ func VerifyPhone(ctx context.Context, req *VerifyPhoneRequest, ip string) error 
 	if err := req.validate(); err != nil {
 		return errors.Trace(err)
 	}
-	existPhone, err := userModel.ExistPhone(db.DB, req.Phone)
+	existPhone, err := userModel.ExistPhone(ctx, db.DB, req.Phone)
 	if err != nil {
 		return errors.Trace(err)
 	}
