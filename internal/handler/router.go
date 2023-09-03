@@ -36,6 +36,7 @@ func Run() {
 	family := api.Group("/family/:familyID")
 	family.Use(CheckLogin())
 	family.Use(CheckFamily())
+	family.GET("/info", FamilyInfo)
 	family.POST("/set_fire_gold", SetFIREGold)
 
 	earning := api.Group("/earning")

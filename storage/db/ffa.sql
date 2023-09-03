@@ -4,7 +4,7 @@ CREATE TABLE `family` (
     `name` varchar(128) CHARACTER SET utf8mb4 NOT NULL,
     `status` tinyint(4) NOT NULL DEFAULT '-1',
     `create_time` bigint(20) NOT NULL DEFAULT '0',
-    `fire_goal` DECIMAL(10, 2),
+    `fire_goal` bigint(20),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
